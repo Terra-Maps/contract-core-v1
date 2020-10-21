@@ -1,0 +1,189 @@
+#pragma version 2
+int 0
+txn NumAppArgs
+==
+bz check_note 
+//----------------------optin---------//
+int OptIn
+txn OnCompletion
+==
+bz failed
+int 1
+return
+
+//------check note ---------//
+// check_note:
+// txna ApplicationArgs 0
+// byte "create_poi"
+// !=
+// gtxn Note
+// byte ""
+// ==
+// &&
+// bnz check_parms
+// b failed
+
+//----check params---------------//
+
+
+check_parms:
+
+// Initialize
+gtxna 1 ApplicationArgs 0
+byte "init" 
+==
+bnz init
+
+//Create a new POI
+gtxna 1 ApplicationArgs 0
+byte "create_poi"
+==
+bnz create_poi
+
+// Claim votes
+gtxna 1 ApplicationArgs 0
+byte "vote_poi" 
+==
+bnz vote_poi
+
+// claim stake
+gtxna 0 ApplicationArgs 0
+byte "claimStake" 
+==
+bnz claimStake
+
+b failed
+
+//------Functions --------//
+
+// start_here_create_poi
+create_poi:
+    global GroupSize
+    int 2
+    ==
+    // an ApplicationCall (ie call escrow smart contract)
+    gtxn 0 TypeEnum
+    int 4
+    ==
+    &&
+    
+    // check applicationID
+    gtxn 0 ApplicationID
+    int 12333233
+    ==
+    &&
+    bnz failed
+    gtxn 0 AssetAmount
+    int 100
+    <
+    &&
+    
+    
+    // Check the note field format
+    // terra-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
+    
+    
+    gtxn 1 Note
+    substr 0 6
+    byte "terra-"
+    ==
+    bz 
+    failed
+    // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
+    
+    
+    // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
+    
+    // store the POI in creators state receiver
+    txna ApplicationArgs 1
+    // Yes Votes Total
+    byte "y"
+    byte "00000001"
+    concat
+    // No votes
+    byte "-n-"
+    concat
+    byte "00000000"
+    concat
+    // Total Stake on POI
+    byte "-t-"
+    concat
+    byte "000000000000"
+    concat
+    // Stake of creator
+    byte "-c-"
+    concat
+    // Amount Staked by the creator
+    gtxn 0 AssetAmount
+    itob
+    concat
+    byte "-"
+    concat
+    // Geohash
+    txna ApplicationArgs 1
+    byte "-"
+    concat
+    // POI Name
+    // txna ApplicationArgs 2
+    // concat
+    app_local_put
+// end_here_create_poi
+
+vote_poi:
+     global GroupSize
+    int 2
+    ==
+    // an ApplicationCall (ie call escrow smart contract)
+    gtxn 0 TypeEnum
+    int 4
+    ==
+    &&
+    
+    // check applicationID
+    gtxn 0 ApplicationID
+    int 12333233
+    ==
+    &&
+    bnz failed
+    gtxn 0 AssetAmount
+    int 10
+    <
+    &&
+    
+    // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
+    
+    int 1
+    // Get Geohash
+    gtxn 1 ApplicationArgs 1
+    app_local_get
+// Fail tx if key doesnt exist
+    bz failed
+    
+    // store the POI in users state
+    gtxn 1 ApplicationArgs 1
+    // Yes Votes Total
+    byte "creator-"
+    gtxn 1 Account 1
+    concat
+    byte "-v-"
+    concat
+    // User Salted Vote
+    txna ApplicationArgs 2
+    concat
+    byte "-s-a"
+    concat
+    // Amount Staked by the user
+    gtxn 0 AssetAmount
+    itob
+    concat
+    // POI Name
+    // txna ApplicationArgs 2
+    // concat
+    app_local_put
+
+failed:
+int 0
+return
+finished:
+int 1
+return
