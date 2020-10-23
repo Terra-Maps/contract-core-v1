@@ -6,6 +6,17 @@
 // escrow address
 // This contract only spends out
 // it two transactions are grouped
+
+//---------------------Constructor------------------------//
+    // Check for the Application Creation 
+    int 0
+    txn ApplicationID
+    ==
+    
+    int 1
+    return
+//---------------------Constructor------------------------//
+
 global GroupSize
 int 2
 ==
@@ -19,8 +30,8 @@ int 6
 
 // The specific App ID must be called
 // This should be changed after creation
-gtxn 0 ApplicationID
-int 9979689
+gtxn 1 ApplicationID
+int 12892625
 ==
 &&
 

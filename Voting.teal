@@ -1,60 +1,87 @@
 #pragma version 2
-int 0
-txn NumAppArgs
-==
-bz check_note 
-//----------------------optin---------//
-int OptIn
-txn OnCompletion
-==
-bz failed
-int 1
-return
+//---------------------Constructor------------------------//
+    // Check for the Application Creation 
+    int 0
+    txn ApplicationID
+    ==
 
-//------check note ---------//
-// check_note:
-// txna ApplicationArgs 0
-// byte "create_poi"
-// !=
-// gtxn Note
-// byte ""
-// ==
-// &&
-// bnz check_parms
-// b failed
+    bz check_parms
 
-//----check params---------------//
+    // Set the Creator Address
+    byte "Creator"
+    txn Sender
+    app_global_put
 
+    // Set the Escrow Contract Address
+    byte "Escrow"
+    txn ApplicationArgs 1
+    app_global_put
+
+    int 1
+    return
+
+//---------------------Constructor------------------------//
 
 check_parms:
 
-// Initialize
-gtxna 1 ApplicationArgs 0
-byte "init" 
-==
-bnz init
+    // Update Escrow Address
+    txna ApplicationArgs 0
+    byte "update_escrow"
+    ==
+    bnz update_escrow
 
-//Create a new POI
-gtxna 1 ApplicationArgs 0
-byte "create_poi"
-==
-bnz create_poi
-
-// Claim votes
-gtxna 1 ApplicationArgs 0
-byte "vote_poi" 
-==
-bnz vote_poi
-
-// claim stake
-gtxna 0 ApplicationArgs 0
-byte "claimStake" 
-==
-bnz claimStake
-
-b failed
+    //Create a new POI
+    gtxna 1 ApplicationArgs 0
+    byte "create_poi"
+    ==
+    bnz create_poi
+    
+    // Claim votes
+    gtxna 1 ApplicationArgs 0
+    byte "vote_poi" 
+    ==
+    bnz vote_poi
+    
+    // claim stake
+    //gtxna 0 ApplicationArgs 0
+    //byte "claimStake" 
+    //==
+    //bnz claimStake
+    
+    b failed
 
 //------Functions --------//
+
+
+//---------------------Update Escrow Account------------------------//
+
+update_escrow:
+    // verify that the creator is
+    // making the call
+    byte "Creator"
+    app_global_get
+    txn Sender
+    ==
+
+    // the call should pass the escrow 
+    // address
+    txn NumAppArgs
+    int 2
+    ==
+    &&
+    bz failed
+
+    // store the address in global state
+    // this parameter should be addr:
+    byte "Escrow"
+    txna ApplicationArgs 1
+    app_global_put
+    
+    int 1
+    return
+
+//---------------------Update Escrow Account------------------------//
+
 
 // start_here_create_poi
 create_poi:
@@ -84,11 +111,10 @@ create_poi:
     
     
     gtxn 1 Note
-    substr 0 6
+    substring 0 6
     byte "terra-"
     ==
-    bz 
-    failed
+    bz failed
     // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
     
     
@@ -163,7 +189,7 @@ vote_poi:
     gtxn 1 ApplicationArgs 1
     // Yes Votes Total
     byte "creator-"
-    gtxn 1 Account 1
+    gtxn 1 Accounts 1
     concat
     byte "-v-"
     concat
