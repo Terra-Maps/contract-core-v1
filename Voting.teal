@@ -76,7 +76,6 @@ update_escrow:
     byte "Escrow"
     txna ApplicationArgs 1
     app_global_put
-    
     int 1
     return
 
@@ -96,12 +95,13 @@ create_poi:
     
     // check applicationID
     gtxn 0 ApplicationID
-    int 12333233
+    byte "Escrow"
+    app_global_get
     ==
     &&
     bnz failed
-    gtxn 0 AssetAmount
-    int 100
+    gtxn 0 Amount
+    int 10
     <
     &&
     
