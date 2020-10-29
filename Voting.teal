@@ -24,6 +24,15 @@
 
 check_parms:
 
+//---------------------Opt-In------------------------//
+    // Check for the Application Opt-In Code
+    int 0
+    txn NumAppArgs
+    ==
+
+    bnz finished
+//---------------------Opt-In------------------------//
+
     // Update Escrow Address
     txna ApplicationArgs 0
     byte "update_escrow"
@@ -31,13 +40,13 @@ check_parms:
     bnz update_escrow
 
     //Create a new POI
-    gtxna 1 ApplicationArgs 0
+    txna ApplicationArgs 0
     byte "create_poi"
     ==
     bnz create_poi
     
     // Claim votes
-    gtxna 1 ApplicationArgs 0
+    txna ApplicationArgs 0
     byte "vote_poi" 
     ==
     bnz vote_poi
@@ -84,33 +93,33 @@ update_escrow:
 
 // start_here_create_poi
 create_poi:
-    global GroupSize
-    int 2
-    ==
-    // an ApplicationCall (ie call escrow smart contract)
-    gtxn 0 TypeEnum
-    int 4
-    ==
-    &&
-    
-    // check applicationID
-    gtxn 0 ApplicationID
-    byte "Escrow"
-    app_global_get
-    ==
-    &&
-    bnz failed
-    gtxn 0 Amount
-    int 10
-    <
-    &&
+        // global GroupSize
+        // int 2
+        // ==
+        // // an ApplicationCall (ie call escrow smart contract)
+        // gtxn 0 TypeEnum
+        // int 4
+        // ==
+        // &&
+        
+        // // check applicationID
+        // gtxn 0 ApplicationID
+        // byte "Escrow"
+        // app_global_get
+        // ==
+        // &&
+        // bnz failed
+        // gtxn 0 Amount
+        // int 10
+        // <
+        // &&
     
     
     // Check the note field format
     // terra-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
     
     
-    gtxn 1 Note
+    txn Note
     substring 0 6
     byte "terra-"
     ==
@@ -140,13 +149,14 @@ create_poi:
     byte "-c-"
     concat
     // Amount Staked by the creator
-    gtxn 0 AssetAmount
-    itob
+    txna ApplicationArgs 2
+    // itob
     concat
     byte "-"
     concat
     // Geohash
     txna ApplicationArgs 1
+    concat
     byte "-"
     concat
     // POI Name
@@ -156,40 +166,40 @@ create_poi:
 // end_here_create_poi
 
 vote_poi:
-     global GroupSize
-    int 2
-    ==
-    // an ApplicationCall (ie call escrow smart contract)
-    gtxn 0 TypeEnum
-    int 4
-    ==
-    &&
-    
-    // check applicationID
-    gtxn 0 ApplicationID
-    int 12333233
-    ==
-    &&
-    bnz failed
-    gtxn 0 AssetAmount
-    int 10
-    <
-    &&
+        // global GroupSize
+        // int 2
+        // ==
+        // // an ApplicationCall (ie call escrow smart contract)
+        // gtxn 0 TypeEnum
+        // int 4
+        // ==
+        // &&
+        
+        // // check applicationID
+        // gtxn 0 ApplicationID
+        // int 12333233
+        // ==
+        // &&
+        // bnz failed
+        // gtxn 0 AssetAmount
+        // int 10
+        // <
+        // &&
     
     // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
     
     int 1
     // Get Geohash
-    gtxn 1 ApplicationArgs 1
+    txna ApplicationArgs 1
     app_local_get
 // Fail tx if key doesnt exist
     bz failed
     
     // store the POI in users state
-    gtxn 1 ApplicationArgs 1
+    txna ApplicationArgs 1
     // Yes Votes Total
     byte "creator-"
-    gtxn 1 Accounts 1
+    txna Accounts 1
     concat
     byte "-v-"
     concat
@@ -199,8 +209,7 @@ vote_poi:
     byte "-s-a"
     concat
     // Amount Staked by the user
-    gtxn 0 AssetAmount
-    itob
+    txna ApplicationArgs 3
     concat
     // POI Name
     // txna ApplicationArgs 2
