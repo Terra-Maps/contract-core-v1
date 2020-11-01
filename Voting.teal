@@ -51,11 +51,11 @@ check_parms:
     ==
     bnz vote_poi
     
-    // claim stake
-    //gtxna 0 ApplicationArgs 0
-    //byte "claimStake" 
-    //==
-    //bnz claimStake
+    //claim stake
+    gtxna 0 ApplicationArgs 0
+    byte "reveal_vote" 
+    ==
+    bnz reveal_vote
     
     b failed
 
@@ -130,27 +130,24 @@ create_poi:
     // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
     
     // store the POI in creators state receiver
+    int 0
     txna ApplicationArgs 1
     // Yes Votes Total
     byte "y"
-    byte "00000001"
+    int 1
+    itob
     concat
     // No votes
     byte "-n-"
     concat
-    byte "00000000"
+    int 0
+    itob
     concat
     // Total Stake on POI
     byte "-t-"
     concat
-    byte "000000000000"
-    concat
-    // Stake of creator
-    byte "-c-"
-    concat
-    // Amount Staked by the creator
-    txna ApplicationArgs 2
-    // itob
+    txn Amount
+    itob
     concat
     byte "-"
     concat
@@ -159,10 +156,12 @@ create_poi:
     concat
     byte "-"
     concat
-    // POI Name
-    // txna ApplicationArgs 2
-    // concat
+    // Creation Timestamp
+    global LatestTimestamp
+    itob
+    concat
     app_local_put
+    b finished
 // end_here_create_poi
 
 vote_poi:
@@ -191,11 +190,9 @@ vote_poi:
     int 1
     // Get Geohash
     txna ApplicationArgs 1
-    app_local_get
-// Fail tx if key doesnt exist
-    bz failed
-    
+    app_local_get    
     // store the POI in users state
+    int 0
     txna ApplicationArgs 1
     // Yes Votes Total
     byte "creator-"
@@ -209,13 +206,153 @@ vote_poi:
     byte "-s-a"
     concat
     // Amount Staked by the user
+    txn Amount
+    itob
+    concat
+    app_local_put
+    b finished
+reveal_vote:
+    int 1
+    // Get Geohash
+    txna ApplicationArgs 1
+    app_local_get 
+    // Convert vote to hash
+    // yes/no
+    txna ApplicationArgs 2
+    // salt
     txna ApplicationArgs 3
     concat
-    // POI Name
-    // txna ApplicationArgs 2
-    // concat
+    sha256
+    substring 0 16
+    store 0
+    // Get string from voter's local state
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    
+    // check if account is correct
+    substring 3 35
+    txna Accounts 1
+    ==
+    bz failed
+    // getting string again
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 38 55
+    load 0
+    ==
+    bz failed
+    //storing revealed vote in user space
+    int 0
+    txna ApplicationArgs 1
+    byte "c-"
+    txna Accounts 1
+    concat 
+    byte "-v-"
+    concat
+    txna ApplicationArgs 2
+    concat
+    byte "-s-"
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 38 66
+    concat
     app_local_put
-
+    // check casted vote
+    byte "yes"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_yes
+    byte "no"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_no
+    
+    b failed
+vote_yes:
+    
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 1 9
+    btoi
+    int 1
+    +
+    store 0
+    
+    byte "y"
+    load 0
+    itob
+    concat
+  
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    
+    int 9 
+    
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    concat 
+    
+    
+    store 1
+    
+    int 1
+    txna ApplicationArgs 1
+    load 1
+    app_local_put
+    b finished
+    
+vote_no:
+    
+    
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 13 21
+    btoi
+    int 1
+    +
+    store 0
+    
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 13
+    load 0
+    itob
+    concat
+  
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    
+    int 21 
+    
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    concat 
+    
+    
+    store 1
+    
+    int 1
+    txna ApplicationArgs 1
+    load 1
+    app_local_put
+    b finished    
+    
+    
+    
 failed:
 int 0
 return
