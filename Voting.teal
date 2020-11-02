@@ -195,15 +195,13 @@ vote_poi:
     int 0
     txna ApplicationArgs 1
     // Yes Votes Total
-    byte "creator-"
     txna Accounts 1
-    concat
-    byte "-v-"
+    byte "-"
     concat
     // User Salted Vote
     txna ApplicationArgs 2
     concat
-    byte "-s-a"
+    byte "-"
     concat
     // Amount Staked by the user
     txn Amount
@@ -231,7 +229,7 @@ reveal_vote:
     app_local_get 
     
     // check if account is correct
-    substring 3 35
+    substring 0 32
     txna Accounts 1
     ==
     bz failed
@@ -239,7 +237,7 @@ reveal_vote:
     int 0 
     txna ApplicationArgs 1
     app_local_get 
-    substring 38 55
+    substring 33 49
     load 0
     ==
     bz failed
@@ -257,7 +255,7 @@ reveal_vote:
     int 0 
     txna ApplicationArgs 1
     app_local_get 
-    substring 38 66
+    substring 50 58
     concat
     app_local_put
     // check casted vote
