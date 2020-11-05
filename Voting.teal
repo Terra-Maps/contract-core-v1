@@ -209,7 +209,60 @@ vote_poi:
     concat
     app_local_put
     b finished
+
 reveal_vote:
+
+        // store the POI in creators state receiver
+        int 1
+        byte "ttnfu1r"
+        // Yes Votes Total
+        byte "y"
+        int 1
+        itob
+        concat
+        // No votes
+        byte "-n-"
+        concat
+        int 0
+        itob
+        concat
+        // Total Stake on POI
+        byte "-t-"
+        concat
+        txn Amount
+        itob
+        concat
+        byte "-"
+        concat
+        // Geohash
+        byte "ttnfu1r"
+        concat
+        byte "-"
+        concat
+        // Creation Timestamp
+        global LatestTimestamp
+        itob
+        concat
+        app_local_put
+   
+        // store the POI in users state
+        int 0
+        byte "ttnfu1r"
+        // Yes Votes Total
+        txna Accounts 1
+        byte "-"
+        concat
+        // User Salted Vote
+        byte "a3793e3fad28d443"
+        concat
+        byte "-"
+        concat
+        // Amount Staked by the user
+        txn Amount
+        itob
+        concat
+        app_local_put
+
     int 1
     // Get Geohash
     txna ApplicationArgs 1
@@ -221,7 +274,7 @@ reveal_vote:
     txna ApplicationArgs 3
     concat
     sha256
-    substring 0 16
+    substring 0 8
     store 0
     // Get string from voter's local state
     int 0 
@@ -240,7 +293,7 @@ reveal_vote:
     substring 33 49
     load 0
     ==
-    bz failed
+    bnz failed
     //storing revealed vote in user space
     int 0
     txna ApplicationArgs 1
@@ -252,6 +305,7 @@ reveal_vote:
     txna ApplicationArgs 2
     concat
     byte "-s-"
+    concat
     int 0 
     txna ApplicationArgs 1
     app_local_get 
