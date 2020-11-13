@@ -116,12 +116,18 @@ create_poi:
     
     
     // Check the note field format
-    // terra-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
+    // terra-hexendocedaddress-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
     
     
     txn Note
     substring 0 6
     byte "terra-"
+    ==
+    bz failed
+
+    txn Note
+    substring 6 70
+    txn Sender
     ==
     bz failed
     // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
@@ -133,26 +139,24 @@ create_poi:
     int 0
     txna ApplicationArgs 1
     // Yes Votes Total
-    byte "y"
     int 1
     itob
-    concat
     // No votes
-    byte "-n-"
+    byte "-"
     concat
     int 0
     itob
     concat
-    // Total Stake on POI
-    byte "-t-"
+    // Total Stake on yes 
+    byte "-"
     concat
     txn Amount
     itob
     concat
+    // total stake on no
     byte "-"
-    concat
-    // Geohash
-    txna ApplicationArgs 1
+    int 0
+    itob
     concat
     byte "-"
     concat
@@ -253,38 +257,36 @@ vote_poi:
 
 reveal_vote:
 
-        // store the POI in creators state receiver
-        int 1
-        byte "ttnfu1r"
-        // Yes Votes Total
-        byte "y"
-        int 1
-        itob
-        concat
-        // No votes
-        byte "-n-"
-        concat
-        int 0
-        itob
-        concat
-        // Total Stake on POI
-        byte "-t-"
-        concat
-        txn Amount
-        itob
-        concat
-        byte "-"
-        concat
-        // Geohash
-        byte "ttnfu1r"
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        app_local_put
+    // store the POI in creators state receiver
+    int 1
+    byte "ttnfu1r"
+    // Yes Votes Total
+    int 1
+    itob
+    // No votes
+    byte "-"
+    concat
+    int 0
+    itob
+    concat
+    // Total Stake on yes 
+    byte "-"
+    concat
+    txn Amount
+    itob
+    concat
+    // total stake on no
+    byte "-"
+    int 0
+    itob
+    concat
+    byte "-"
+    concat
+    // Creation Timestamp
+    global LatestTimestamp
+    itob
+    concat
+    app_local_put
    
         // store the POI in users state
         int 0
@@ -363,84 +365,108 @@ reveal_vote:
     
     b failed
 vote_yes:
-    
+    //increment votes for yes
     int 1 
     txna ApplicationArgs 1
     app_local_get
-    substring 1 9
+    substring 0 8
     btoi
     int 1
     +
-    store 0
-    
-    byte "y"
-    load 0
     itob
-    concat
-  
+    store 0
+    // increment stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 26
+    btoi
+    txn Amount
+    +
+    store 1
+    // build entire string
+    load 0
     int 1 
     txna ApplicationArgs 1
     app_local_get
-    
-    int 9 
-    
+    substring 9 17
+    concat
+    load 1
+    concat
+    //fetch rest of the string
     int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    int 26
+    int 1
     txna ApplicationArgs 1
     app_local_get
     len
     substring3 
     concat 
-    
-    
-    store 1
-    
+    store 3
+    // save entire string
+   
     int 1
     txna ApplicationArgs 1
-    load 1
+    load 3
     app_local_put
     b finished
+
     
 vote_no:
-    
-    
+        //increment votes for yes
     int 1 
     txna ApplicationArgs 1
     app_local_get
-    substring 13 21
+    substring 9 17
     btoi
     int 1
     +
-    store 0
-    
-    int 1 
-    txna ApplicationArgs 1
-    app_local_get
-    substring 0 13
-    load 0
     itob
-    concat
-  
+    store 0
+    // increment stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 27 35
+    btoi
+    txn Amount
+    +
+    store 1
+    // build entire string
     int 1 
     txna ApplicationArgs 1
     app_local_get
-    
-    int 21 
-    
+    substring 0 9
+    load 0
+    concat
     int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 27
+    concat
+    load 1
+    concat
+    //fetch rest of the string
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    int 35
+    int 1
     txna ApplicationArgs 1
     app_local_get
     len
     substring3 
     concat 
-    
-    
-    store 1
-    
+    store 3
+    // save entire string
+   
     int 1
     txna ApplicationArgs 1
-    load 1
+    load 3
     app_local_put
-    b finished    
+    b finished  
     
     
     
