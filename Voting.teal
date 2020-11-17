@@ -408,6 +408,8 @@ withdraw:
     global LatestTimestamp
     itob
     concat
+    byte "-"
+    concat
     byte "f"
     concat
     app_local_put
