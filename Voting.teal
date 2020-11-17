@@ -295,6 +295,8 @@ reveal_vote:
     global LatestTimestamp
     itob
     concat
+    byte "-"
+    concat
     byte "f"
     concat
     app_local_put
@@ -662,7 +664,7 @@ withdraw_yes:
     int 0
     txna ApplicationArgs 1
     app_local_get
-    substring 44 45
+    substring 45 46
     store 0
     load 0
     byte "t"
@@ -773,7 +775,7 @@ withdraw_no:
     int 0
     txna ApplicationArgs 1
     app_local_get
-    substring 44 45
+    substring 45 46
     store 0
     load 0
     byte "t"
