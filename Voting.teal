@@ -372,6 +372,117 @@ reveal_vote:
     txna ApplicationArgs 2
     ==
     bnz vote_yes
+    byte "noo"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_no
+    
+    b failed
+withdraw:
+    // store the POI in creators state receiver
+    // int 1
+    // byte "ttnfu1r"
+    // // Yes Votes Total
+    // int 1
+    // itob
+    // // No votes
+    // byte "-"
+    // concat
+    // int 4
+    // itob
+    // concat
+    // // Total Stake on yes 
+    // byte "-"
+    // concat
+    // int 1000
+    // itob
+    // concat
+    // // total stake on no
+    // byte "-"
+    // concat
+    // int 2000
+    // itob
+    // concat
+    // byte "-"
+    // concat
+    // // Creation Timestamp
+    // global LatestTimestamp
+    // itob
+    // concat
+    // byte "f"
+    // concat
+    // app_local_put
+
+        // store the POI in users state
+        // int 0
+        // byte "ttnfu1r"
+        // // Yes Votes Total
+        // txna Accounts 1
+        // byte "-"
+        // concat
+        // // User  Vote
+        // byte "noo"
+        // concat
+        // byte "-"
+        // concat
+        // // Amount Staked by the user
+        // int 100
+        // itob
+        // concat
+        // app_local_put
+
+    int 1
+    // Get Geohash
+    txna ApplicationArgs 1
+    app_local_get 
+    // Convert vote to hash
+    // yes/no
+    txna ApplicationArgs 2
+    // salt
+    txna ApplicationArgs 3
+    concat
+    sha256
+    substring 0 8
+    // getting string again
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 33 49
+    ==
+    bnz failed
+    // Get string from voter's local state
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    
+    // check if account is correct
+    substring 0 32
+    txna Accounts 1
+    ==
+    bz failed
+    //storing revealed vote in user space
+    int 0
+    txna ApplicationArgs 1
+    
+    txna Accounts 1
+    
+    byte "-"
+    concat
+    txna ApplicationArgs 2
+    concat
+    byte "-"
+    concat
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 50 58
+    concat
+    app_local_put
+    // check casted vote
+    byte "yes"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_yes
     byte "no"
     txna ApplicationArgs 2
     ==
@@ -383,12 +494,12 @@ withdraw:
     int 1
     byte "ttnfu1r"
     // Yes Votes Total
-    int 1
+    int 4
     itob
     // No votes
     byte "-"
     concat
-    int 4
+    int 1
     itob
     concat
     // Total Stake on yes 
@@ -421,7 +532,7 @@ withdraw:
         byte "-"
         concat
         // User  Vote
-        byte "noo"
+        byte "yes"
         concat
         byte "-"
         concat
@@ -483,16 +594,12 @@ vote_yes:
     store 1
     // build entire string
     load 0
-    byte "-"
-    concat
     int 1 
     txna ApplicationArgs 1
     app_local_get
     substring 9 17
     concat
     load 1
-    concat
-    byte "-"
     concat
     //fetch rest of the string
     int 1 
@@ -574,6 +681,8 @@ vote_no:
     
 withdraw_yes:
     //check if yes won
+    int 1 
+    txna ApplicationArgs 1
     int 1
     txna ApplicationArgs 1
     app_local_get
@@ -659,8 +768,7 @@ withdraw_yes:
     len
     substring3
     concat
-    int 1 
-    txna ApplicationArgs 1
+    
     app_local_put
     //delete local app state
     int 1
@@ -668,9 +776,9 @@ withdraw_yes:
     app_local_del
     //Todo check note field if first withdraw
     int 0
-    txna ApplicationArgs 0
+    txna ApplicationArgs 1
     app_local_get
-    substring 44 45
+    substring 45 46
     store 0
     load 0
     byte "t"
@@ -682,6 +790,8 @@ withdraw_yes:
     b finished
     
 withdraw_no:
+    int 1 
+    txna ApplicationArgs 1
     //check if no won
     int 1
     txna ApplicationArgs 1
@@ -769,8 +879,7 @@ withdraw_no:
     len
     substring3
     concat
-    int 1 
-    txna ApplicationArgs 1
+    
     app_local_put
     // delete local user state
     int 1
@@ -778,9 +887,9 @@ withdraw_no:
     app_local_del
     //Todo check note field if first withdraw
     int 0
-    txna ApplicationArgs 0
+    txna ApplicationArgs 1
     app_local_get
-    substring 44 45
+    substring 45 46
     store 0
     load 0
     byte "t"
