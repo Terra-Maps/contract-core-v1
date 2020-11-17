@@ -349,14 +349,14 @@
         //storing revealed vote in user space
         int 0
         txna ApplicationArgs 1
-        byte "c-"
+       
         txna Accounts 1
-        concat 
-        byte "-v-"
+       
+        byte "-"
         concat
         txna ApplicationArgs 2
         concat
-        byte "-s-"
+        byte "-"
         concat
         int 0 
         txna ApplicationArgs 1
