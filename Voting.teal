@@ -1,794 +1,803 @@
-    #pragma version 2
-    //---------------------Constructor------------------------//
-        // Check for the Application Creation 
-        int 0
-        txn ApplicationID
-        ==
+#pragma version 2
+//---------------------Constructor------------------------//
+    // Check for the Application Creation 
+    int 0
+    txn ApplicationID
+    ==
 
-        bz check_parms
+    bz check_parms
 
-        // Set the Creator Address
-        byte "Creator"
-        txn Sender
-        app_global_put
+    // Set the Creator Address
+    byte "Creator"
+    txn Sender
+    app_global_put
 
-        // Set the Escrow Contract Address
-        byte "Escrow"
-        txn ApplicationArgs 1
-        app_global_put
+    // Set the Escrow Contract Address
+    byte "Escrow"
+    txn ApplicationArgs 1
+    app_global_put
 
-        int 1
-        return
+    int 1
+    return
 
-    //---------------------Constructor------------------------//
+//---------------------Constructor------------------------//
 
-    check_parms:
+check_parms:
 
-    //---------------------Opt-In------------------------//
-        // Check for the Application Opt-In Code
-        int 0
-        txn NumAppArgs
-        ==
+//---------------------Opt-In------------------------//
+    // Check for the Application Opt-In Code
+    int 0
+    txn NumAppArgs
+    ==
 
-        bnz finished
-    //---------------------Opt-In------------------------//
+    bnz finished
+//---------------------Opt-In------------------------//
 
-        // Update Escrow Address
-        txna ApplicationArgs 0
-        byte "update_escrow"
-        ==
-        bnz update_escrow
+    // Update Escrow Address
+    txna ApplicationArgs 0
+    byte "update_escrow"
+    ==
+    bnz update_escrow
 
-        //Create a new POI
-        txna ApplicationArgs 0
-        byte "create_poi"
-        ==
-        bnz create_poi
+    //Create a new POI
+    txna ApplicationArgs 0
+    byte "create_poi"
+    ==
+    bnz create_poi
+    
+    // Claim votes
+    txna ApplicationArgs 0
+    byte "vote_poi" 
+    ==
+    bnz vote_poi
+    
+    //reveal vote
+    txna ApplicationArgs 0
+    byte "reveal_vote" 
+    ==
+    bnz reveal_vote
+
+    //withdraw stake
+    txna ApplicationArgs 0
+    byte "withdraw"
+    ==
+    bnz withdraw
+    
+    b failed
+
+//------Functions --------//
+
+
+//---------------------Update Escrow Account------------------------//
+
+update_escrow:
+    // verify that the creator is
+    // making the call
+    byte "Creator"
+    app_global_get
+    txn Sender
+    ==
+
+    // the call should pass the escrow 
+    // address
+    txn NumAppArgs
+    int 2
+    ==
+    &&
+    bz failed
+
+    // store the address in global state
+    // this parameter should be addr:
+    byte "Escrow"
+    txna ApplicationArgs 1
+    app_global_put
+    int 1
+    return
+
+//---------------------Update Escrow Account------------------------//
+
+
+// start_here_create_poi
+create_poi:
+        // global GroupSize
+        // int 2
+        // ==
+        // // an ApplicationCall (ie call escrow smart contract)
+        // gtxn 0 TypeEnum
+        // int 4
+        // ==
+        // &&
         
-        // Claim votes
-        txna ApplicationArgs 0
-        byte "vote_poi" 
-        ==
-        bnz vote_poi
+        // // check applicationID
+        // gtxn 0 ApplicationID
+        // byte "Escrow"
+        // app_global_get
+        // ==
+        // &&
+        // bnz failed
+        // gtxn 0 Amount
+        // int 10
+        // <
+        // &&
+    
+    
+    // Check the note field format
+    // terra-hexendocedaddress-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
+    
+    
+    txn Note
+    substring 0 6
+    byte "terra-"
+    ==
+    bz failed
+
+    // txn Note
+    // substring 6 70
+    // txn Sender
+    // ==
+    // bz failed
+    // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
+    
+    
+    // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
+    
+    // store the POI in creators state receiver
+    int 0
+    txna ApplicationArgs 1
+    // Yes Votes Total
+    int 1
+    itob
+    // No votes
+    byte "-"
+    concat
+    int 0
+    itob
+    concat
+    // Total Stake on yes 
+    byte "-"
+    concat
+    txn Amount
+    itob
+    concat
+    // total stake on no
+    byte "-"
+    concat
+    int 0
+    itob
+    concat
+    byte "-"
+    concat
+    // Creation Timestamp
+    global LatestTimestamp
+    itob
+    concat
+    byte "-"
+    concat
+    byte "f"
+    concat
+    app_local_put
+    b finished
+// end_here_create_poi
+
+vote_poi:
+        // global GroupSize
+        // int 2
+        // ==
+        // // an ApplicationCall (ie call escrow smart contract)
+        // gtxn 0 TypeEnum
+        // int 4
+        // ==
+        // &&
         
-        //reveal vote
-        txna ApplicationArgs 0
-        byte "reveal_vote" 
-        ==
-        bnz reveal_vote
+        // // check applicationID
+        // gtxn 0 ApplicationID
+        // int 12333233
+        // ==
+        // &&
+        // bnz failed
+        // gtxn 0 AssetAmount
+        // int 10
+        // <
+        // &&
 
-        //withdraw stake
-        txna ApplicationArgs 0
-        byte "withdraw"
-        ==
-        bnz withdraw
-        
-        b failed
-
-    //------Functions --------//
-
-
-    //---------------------Update Escrow Account------------------------//
-
-    update_escrow:
-        // verify that the creator is
-        // making the call
-        byte "Creator"
-        app_global_get
-        txn Sender
-        ==
-
-        // the call should pass the escrow 
-        // address
-        txn NumAppArgs
-        int 2
-        ==
-        &&
-        bz failed
-
-        // store the address in global state
-        // this parameter should be addr:
-        byte "Escrow"
-        txna ApplicationArgs 1
-        app_global_put
-        int 1
-        return
-
-    //---------------------Update Escrow Account------------------------//
-
-
-    // start_here_create_poi
-    create_poi:
-            // global GroupSize
-            // int 2
-            // ==
-            // // an ApplicationCall (ie call escrow smart contract)
-            // gtxn 0 TypeEnum
-            // int 4
-            // ==
-            // &&
-            
-            // // check applicationID
-            // gtxn 0 ApplicationID
-            // byte "Escrow"
-            // app_global_get
-            // ==
-            // &&
-            // bnz failed
-            // gtxn 0 Amount
-            // int 10
-            // <
-            // &&
-        
-        
-        // Check the note field format
-        // terra-hexendocedaddress-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
-        
-        
-        txn Note
-        substring 0 6
-        byte "terra-"
-        ==
-        bz failed
-
-        txn Note
-        substring 6 70
-        txn Sender
-        ==
-        bz failed
-        // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
-        
-        
-        // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
-        
-        // store the POI in creators state receiver
-        int 0
-        txna ApplicationArgs 1
-        // Yes Votes Total
-        int 1
-        itob
-        // No votes
-        byte "-"
-        concat
-        int 0
-        itob
-        concat
-        // Total Stake on yes 
-        byte "-"
-        concat
-        txn Amount
-        itob
-        concat
-        // total stake on no
-        byte "-"
-        int 0
-        itob
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        byte "f"
-        concat
-        app_local_put
-        b finished
-    // end_here_create_poi
-
-    vote_poi:
-            // global GroupSize
-            // int 2
-            // ==
-            // // an ApplicationCall (ie call escrow smart contract)
-            // gtxn 0 TypeEnum
-            // int 4
-            // ==
-            // &&
-            
-            // // check applicationID
-            // gtxn 0 ApplicationID
-            // int 12333233
-            // ==
-            // &&
-            // bnz failed
-            // gtxn 0 AssetAmount
-            // int 10
-            // <
-            // &&
-
-        // store the POI in creators state receiver
-            int 1
-            byte "ttnfu1r"
-            // Yes Votes Total
-            byte "y"
-            int 1
-            itob
-            concat
-            // No votes
-            byte "-n-"
-            concat
-            int 0
-            itob
-            concat
-            // Total Stake on POI
-            byte "-t-"
-            concat
-            txn Amount
-            itob
-            concat
-            byte "-"
-            concat
-            // Geohash
-            byte "ttnfu1r"
-            concat
-            byte "-"
-            concat
-            // Creation Timestamp
-            global LatestTimestamp
-            itob
-            concat
-            app_local_put
-        
-        // // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
+    // store the POI in creators state receiver
         // int 1
-        // // Get Geohash
-        // txna ApplicationArgs 1
-        // app_local_get
-        // // Get the timestamp and check that it is within the period time
-        // substring 40 48
-        // btoi
-        // // 259200, 518400, 777600, 1036800
-        // int 259200
-        // +
+        // byte "ttnfu1r"
+        // // Yes Votes Total
+        // byte "y"
+        // int 1
+        // itob
+        // concat
+        // // No votes
+        // byte "-n-"
+        // concat
+        // int 0
+        // itob
+        // concat
+        // // Total Stake on POI
+        // byte "-t-"
+        // concat
+        // txn Amount
+        // itob
+        // concat
+        // byte "-"
+        // concat
+        // // Geohash
+        // byte "ttnfu1r"
+        // concat
+        // byte "-"
+        // concat
+        // // Creation Timestamp
         // global LatestTimestamp
-        // >
+        // itob
+        // concat
+        // app_local_put
+    
+    // // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
+    // int 1
+    // // Get Geohash
+    // txna ApplicationArgs 1
+    // app_local_get
+    // // Get the timestamp and check that it is within the period time
+    // substring 40 48
+    // btoi
+    // // 259200, 518400, 777600, 1036800
+    // int 259200
+    // +
+    // global LatestTimestamp
+    // >
+
+    // store the POI in users state
+    int 0
+    txna ApplicationArgs 1
+    // Yes Votes Total
+    txna Accounts 1
+    byte "-"
+    concat
+    // User Salted Vote
+    txna ApplicationArgs 2
+    concat
+    byte "-"
+    concat
+    // Amount Staked by the user
+    txn Amount
+    itob
+    concat
+    app_local_put
+    b finished
+
+reveal_vote:
+
+    // store the POI in creators state receiver
+    // int 1
+    // byte "ttnfu1r"
+    // // Yes Votes Total
+    // int 1
+    // itob
+    // // No votes
+    // byte "-"
+    // concat
+    // int 0
+    // itob
+    // concat
+    // // Total Stake on yes 
+    // byte "-"
+    // concat
+    // txn Amount
+    // itob
+    // concat
+    // // total stake on no
+    // byte "-"
+    // concat
+    // int 0
+    // itob
+    // concat
+    // byte "-"
+    // concat
+    // // Creation Timestamp
+    // global LatestTimestamp
+    // itob
+    // concat
+    // byte "f"
+    // concat
+    // app_local_put
+
+    //     // store the POI in users state
+    //     int 0
+    //     byte "ttnfu1r"
+    //     // Yes Votes Total
+    //     txna Accounts 1
+    //     byte "-"
+    //     concat
+    //     // User Salted Vote
+    //     byte "a3793e3fad28d443"
+    //     concat
+    //     byte "-"
+    //     concat
+    //     // Amount Staked by the user
+    //     txn Amount
+    //     itob
+    //     concat
+    //     app_local_put
+
+    int 1
+    // Get Geohash
+    txna ApplicationArgs 1
+    app_local_get 
+    // Convert vote to hash
+    // yes/no
+    txna ApplicationArgs 2
+    // salt
+    txna ApplicationArgs 3
+    concat
+    sha256
+    substring 0 8
+    // getting string again
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 33 49
+    ==
+    bnz failed
+    // Get string from voter's local state
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    
+    // check if account is correct
+    substring 0 32
+    txna Accounts 1
+    ==
+    bz failed
+    //storing revealed vote in user space
+    int 0
+    txna ApplicationArgs 1
+    
+    txna Accounts 1
+    
+    byte "-"
+    concat
+    txna ApplicationArgs 2
+    concat
+    byte "-"
+    concat
+    int 0 
+    txna ApplicationArgs 1
+    app_local_get 
+    substring 50 58
+    concat
+    app_local_put
+    // check casted vote
+    byte "yes"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_yes
+    byte "no"
+    txna ApplicationArgs 2
+    ==
+    bnz vote_no
+    
+    b failed
+withdraw:
+    // store the POI in creators state receiver
+    int 1
+    byte "ttnfu1r"
+    // Yes Votes Total
+    int 1
+    itob
+    // No votes
+    byte "-"
+    concat
+    int 4
+    itob
+    concat
+    // Total Stake on yes 
+    byte "-"
+    concat
+    int 1000
+    itob
+    concat
+    // total stake on no
+    byte "-"
+    concat
+    int 2000
+    itob
+    concat
+    byte "-"
+    concat
+    // Creation Timestamp
+    global LatestTimestamp
+    itob
+    concat
+    byte "f"
+    concat
+    app_local_put
 
         // store the POI in users state
         int 0
-        txna ApplicationArgs 1
+        byte "ttnfu1r"
         // Yes Votes Total
         txna Accounts 1
         byte "-"
         concat
-        // User Salted Vote
-        txna ApplicationArgs 2
+        // User  Vote
+        byte "noo"
         concat
         byte "-"
         concat
         // Amount Staked by the user
-        txn Amount
+        int 100
         itob
         concat
         app_local_put
-        b finished
-
-    reveal_vote:
-
-        // store the POI in creators state receiver
-        int 1
-        byte "ttnfu1r"
-        // Yes Votes Total
-        int 1
-        itob
-        // No votes
-        byte "-"
-        concat
-        int 0
-        itob
-        concat
-        // Total Stake on yes 
-        byte "-"
-        concat
-        txn Amount
-        itob
-        concat
-        // total stake on no
-        byte "-"
-        concat
-        int 0
-        itob
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        byte "f"
-        concat
-        app_local_put
-    
-            // store the POI in users state
-            int 0
-            byte "ttnfu1r"
-            // Yes Votes Total
-            txna Accounts 1
-            byte "-"
-            concat
-            // User Salted Vote
-            byte "a3793e3fad28d443"
-            concat
-            byte "-"
-            concat
-            // Amount Staked by the user
-            txn Amount
-            itob
-            concat
-            app_local_put
-
-        int 1
-        // Get Geohash
-        txna ApplicationArgs 1
-        app_local_get 
-        // Convert vote to hash
-        // yes/no
-        txna ApplicationArgs 2
-        // salt
-        txna ApplicationArgs 3
-        concat
-        sha256
-        substring 0 8
-        // getting string again
-        int 0 
-        txna ApplicationArgs 1
-        app_local_get 
-        substring 33 49
-        ==
-        bnz failed
-        // Get string from voter's local state
-        int 0 
-        txna ApplicationArgs 1
-        app_local_get 
-        
-        // check if account is correct
-        substring 0 32
-        txna Accounts 1
-        ==
-        bz failed
-        //storing revealed vote in user space
-        int 0
-        txna ApplicationArgs 1
-       
-        txna Accounts 1
-       
-        byte "-"
-        concat
-        txna ApplicationArgs 2
-        concat
-        byte "-"
-        concat
-        int 0 
-        txna ApplicationArgs 1
-        app_local_get 
-        substring 50 58
-        concat
-        app_local_put
-        // check casted vote
-        byte "yes"
-        txna ApplicationArgs 2
-        ==
-        bnz vote_yes
-        byte "no"
-        txna ApplicationArgs 2
-        ==
-        bnz vote_no
-        
-        b failed
-    withdraw:
-        // store the POI in creators state receiver
-        int 1
-        byte "ttnfu1r"
-        // Yes Votes Total
-        int 1
-        itob
-        // No votes
-        byte "-"
-        concat
-        int 4
-        itob
-        concat
-        // Total Stake on yes 
-        byte "-"
-        concat
-        int 1000
-        itob
-        concat
-        // total stake on no
-        byte "-"
-        concat
-        int 2000
-        itob
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        byte "f"
-        concat
-        app_local_put
-    
-            // store the POI in users state
-            int 0
-            byte "ttnfu1r"
-            // Yes Votes Total
-            txna Accounts 1
-            byte "-"
-            concat
-            // User  Vote
-            byte "noo"
-            concat
-            byte "-"
-            concat
-            // Amount Staked by the user
-            int 100
-            itob
-            concat
-            app_local_put
-        // check if vote was  yes "vote_yes"
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        substring 33 36
-        store 7
-        load 7
-        byte "yes"
-        concat
-        substring 3 6
-        load 7
-        ==
-        bnz withdraw_yes
-        // check if vote was no "vote_noo"
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        substring 33 36
-        store 7
-        load 7
-        byte "noo"
-        concat
-        substring 3 6
-        load 7
-        ==
-        bnz withdraw_no
-
-        b failed
-
-
-    vote_yes:
-        //increment votes for yes
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 8
-        btoi
-        int 1
-        +
-        itob
-        store 0
-        // increment stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 18 26
-        btoi
-        txn Amount
-        +
-        itob
-        store 1
-        // build entire string
-        load 0
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        substring 9 17
-        concat
-        load 1
-        concat
-        //fetch rest of the string
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        int 26
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3 
-        concat 
-        store 3
-        // save entire string
-    
-        int 1
-        txna ApplicationArgs 1
-        load 3
-        app_local_put
-        b finished
-
-        
-    vote_no:
-            //increment votes for yes
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        substring 9 17
-        btoi
-        int 1
-        +
-        itob
-        store 0
-        // increment stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 27 35
-        btoi
-        txn Amount
-        +
-        itob
-        store 1
-        // build entire string
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 9
-        load 0
-        concat
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        substring 18 27
-        concat
-        load 1
-        concat
-        //fetch rest of the string
-        int 1 
-        txna ApplicationArgs 1
-        app_local_get
-        int 35
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3 
-        concat 
-        store 3
-        // save entire string
-    
-        int 1
-        txna ApplicationArgs 1
-        load 3
-        app_local_put
-        b finished  
-        
-    withdraw_yes:
-        //check if yes won
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 8
-        btoi
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 9 17
-        btoi 
-        >=
-        bz failed
-        // fetch user stake
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        int 42
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3 
-        btoi
-        store 0
-        
-        //subtract user stake from yes
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 18 26
-        btoi
-        load 0
-        -
-        store 1
-        //get total yes stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 18 26
-        btoi
-        store 2
-        //get total no stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 27 35
-        btoi
-        store 3
-
-        load 0
-        load 3
-        *
-        load 2
-        /
-        store 4
-        load 3
-        load 4
-        -
-        store 5
-        // todo: conditions to verify amount user withdrew from escrow
-        
-        // ---
-
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 18
-        load 1
-        itob
-        concat
-        byte "-"
-        concat
-        load 5
-        itob
-        concat
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        int 35
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3
-        concat
-        int 1 
-        txna ApplicationArgs 1
-        app_local_put
-        //delete local app state
-        int 1
-        txna ApplicationArgs 1
-        app_local_del
-        //Todo check note field if first withdraw
-        int 0
-        txna ApplicationArgs 0
-        app_local_get
-        substring 44 45
-        store 0
-        load 0
-        byte "t"
-        concat
-        substring 1 2
-        load 0
-        ==
-        bnz check_note
-        b finished
-        
-    withdraw_no:
-        //check if no won
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 8
-        btoi
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 9 17
-        btoi 
-        <
-        bz failed
-        // fetch user stake
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        int 42
-        int 0
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3 
-        btoi
-        store 0
-        
-        //subtract user stake from no
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 27 35
-        btoi
-        load 0
-        -
-        store 1
-        //get total yes stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 18 26
-        btoi
-        store 2
-        //get total no stake
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 27 35
-        btoi
-        store 3
-
-        load 0
-        load 2
-        *
-        load 3
-        /
-        store 4
-        load 2
-        load 4
-        -
-        // new yes stake
-        store 5
-        // todo: conditions to verify amount user withdrew from escrow
-        
-        // ---
-
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        substring 0 18
-        load 5
-        itob
-        concat
-        byte "-"
-        concat
-        load 1
-        itob
-        concat
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        int 35
-        int 1
-        txna ApplicationArgs 1
-        app_local_get
-        len
-        substring3
-        concat
-        int 1 
-        txna ApplicationArgs 1
-        app_local_put
-        // delete local user state
-        int 1
-        txna ApplicationArgs 1
-        app_local_del
-        //Todo check note field if first withdraw
-        int 0
-        txna ApplicationArgs 0
-        app_local_get
-        substring 44 45
-        store 0
-        load 0
-        byte "t"
-        concat
-        substring 1 2
-        load 0
-        ==
-        bnz check_note
-        b finished
-    check_note:
-        //todo- impliment check for proper note
-        b finished
-
-        
-    failed:
+    // check if vote was  yes "vote_yes"
     int 0
-    return
-    finished:
+    txna ApplicationArgs 1
+    app_local_get
+    substring 33 36
+    store 7
+    load 7
+    byte "yes"
+    concat
+    substring 3 6
+    load 7
+    ==
+    bnz withdraw_yes
+    // check if vote was no "vote_noo"
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    substring 33 36
+    store 7
+    load 7
+    byte "noo"
+    concat
+    substring 3 6
+    load 7
+    ==
+    bnz withdraw_no
+
+    b failed
+
+
+vote_yes:
+    //increment votes for yes
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 8
+    btoi
     int 1
-    return
+    +
+    itob
+    store 0
+    // increment stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 26
+    btoi
+    txn Amount
+    +
+    itob
+    store 1
+    // build entire string
+    load 0
+    byte "-"
+    concat
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 9 17
+    concat
+    load 1
+    concat
+    byte "-"
+    concat
+    //fetch rest of the string
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    int 26
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    concat 
+    store 3
+    // save entire string
+
+    int 1
+    txna ApplicationArgs 1
+    load 3
+    app_local_put
+    b finished
+
+    
+vote_no:
+        //increment votes for yes
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 9 17
+    btoi
+    int 1
+    +
+    itob
+    store 0
+    // increment stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 27 35
+    btoi
+    txn Amount
+    +
+    itob
+    store 1
+    // build entire string
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 9
+    load 0
+    concat
+    byte "-"
+    concat
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 27
+    concat
+    load 1
+    concat
+    //fetch rest of the string
+    int 1 
+    txna ApplicationArgs 1
+    app_local_get
+    int 35
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    concat 
+    store 3
+    // save entire string
+
+    int 1
+    txna ApplicationArgs 1
+    load 3
+    app_local_put
+    b finished  
+    
+withdraw_yes:
+    //check if yes won
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 8
+    btoi
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 9 17
+    btoi 
+    >=
+    bz failed
+    // fetch user stake
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    int 42
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    btoi
+    store 0
+    
+    //subtract user stake from yes
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 26
+    btoi
+    load 0
+    -
+    store 1
+    //get total yes stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 26
+    btoi
+    store 2
+    //get total no stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 27 35
+    btoi
+    store 3
+
+    load 0
+    load 3
+    *
+    load 2
+    /
+    store 4
+    load 3
+    load 4
+    -
+    store 5
+    // todo: conditions to verify amount user withdrew from escrow
+    
+    // ---
+
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 18
+    load 1
+    itob
+    concat
+    byte "-"
+    concat
+    load 5
+    itob
+    concat
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    int 35
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3
+    concat
+    int 1 
+    txna ApplicationArgs 1
+    app_local_put
+    //delete local app state
+    int 1
+    txna ApplicationArgs 1
+    app_local_del
+    //Todo check note field if first withdraw
+    int 0
+    txna ApplicationArgs 0
+    app_local_get
+    substring 44 45
+    store 0
+    load 0
+    byte "t"
+    concat
+    substring 1 2
+    load 0
+    ==
+    bnz check_note
+    b finished
+    
+withdraw_no:
+    //check if no won
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 8
+    btoi
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 9 17
+    btoi 
+    <
+    bz failed
+    // fetch user stake
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    int 42
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3 
+    btoi
+    store 0
+    
+    //subtract user stake from no
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 27 35
+    btoi
+    load 0
+    -
+    store 1
+    //get total yes stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 18 26
+    btoi
+    store 2
+    //get total no stake
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 27 35
+    btoi
+    store 3
+
+    load 0
+    load 2
+    *
+    load 3
+    /
+    store 4
+    load 2
+    load 4
+    -
+    // new yes stake
+    store 5
+    // todo: conditions to verify amount user withdrew from escrow
+    
+    // ---
+
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    substring 0 18
+    load 5
+    itob
+    concat
+    byte "-"
+    concat
+    load 1
+    itob
+    concat
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    int 35
+    int 1
+    txna ApplicationArgs 1
+    app_local_get
+    len
+    substring3
+    concat
+    int 1 
+    txna ApplicationArgs 1
+    app_local_put
+    // delete local user state
+    int 1
+    txna ApplicationArgs 1
+    app_local_del
+    //Todo check note field if first withdraw
+    int 0
+    txna ApplicationArgs 0
+    app_local_get
+    substring 44 45
+    store 0
+    load 0
+    byte "t"
+    concat
+    substring 1 2
+    load 0
+    ==
+    bnz check_note
+    b finished
+check_note:
+    //todo- impliment check for proper note
+    b finished
+
+    
+failed:
+int 0
+return
+finished:
+int 1
+return
