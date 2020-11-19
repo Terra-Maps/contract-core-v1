@@ -131,11 +131,11 @@ create_poi:
     ==
     bz failed
 
-    txn Note
-    substring 6 64
-    txn Sender
-    ==
-    //bz failed
+    // txn Note
+    // substring 6 70
+    // txn Sender
+    // ==
+    // bz failed
     // TBD - Create the whole note from the ApplicationArgs and check if it matches the note of transaction
     
     
@@ -161,6 +161,7 @@ create_poi:
     concat
     // total stake on no
     byte "-"
+    concat
     int 0
     itob
     concat
@@ -169,6 +170,8 @@ create_poi:
     // Creation Timestamp
     global LatestTimestamp
     itob
+    concat
+    byte "-"
     concat
     byte "f"
     concat
@@ -198,37 +201,37 @@ vote_poi:
         // &&
 
     // store the POI in creators state receiver
-        int 1
-        byte "ttnfu1r"
-        // Yes Votes Total
-        byte "y"
-        int 1
-        itob
-        concat
-        // No votes
-        byte "-n-"
-        concat
-        int 0
-        itob
-        concat
-        // Total Stake on POI
-        byte "-t-"
-        concat
-        txn Amount
-        itob
-        concat
-        byte "-"
-        concat
-        // Geohash
-        byte "ttnfu1r"
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        app_local_put
+        // int 1
+        // byte "ttnfu1r"
+        // // Yes Votes Total
+        // byte "y"
+        // int 1
+        // itob
+        // concat
+        // // No votes
+        // byte "-n-"
+        // concat
+        // int 0
+        // itob
+        // concat
+        // // Total Stake on POI
+        // byte "-t-"
+        // concat
+        // txn Amount
+        // itob
+        // concat
+        // byte "-"
+        // concat
+        // // Geohash
+        // byte "ttnfu1r"
+        // concat
+        // byte "-"
+        // concat
+        // // Creation Timestamp
+        // global LatestTimestamp
+        // itob
+        // concat
+        // app_local_put
     
     // // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
     // int 1
@@ -266,58 +269,56 @@ vote_poi:
 reveal_vote:
 
     // store the POI in creators state receiver
-    int 1
-    byte "ttnfu1r"
-    // Yes Votes Total
-    int 1
-    itob
-    // No votes
-    byte "-"
-    concat
-    int 0
-    itob
-    concat
-    // Total Stake on yes 
-    byte "-"
-    concat
-    txn Amount
-    itob
-    concat
-    // total stake on no
-    byte "-"
-    concat
-    int 0
-    itob
-    concat
-    byte "-"
-    concat
-    // Creation Timestamp
-    global LatestTimestamp
-    itob
-    concat
-    byte "-"
-    concat
-    byte "f"
-    concat
-    app_local_put
+    // int 1
+    // byte "ttnfu1r"
+    // // Yes Votes Total
+    // int 1
+    // itob
+    // // No votes
+    // byte "-"
+    // concat
+    // int 0
+    // itob
+    // concat
+    // // Total Stake on yes 
+    // byte "-"
+    // concat
+    // txn Amount
+    // itob
+    // concat
+    // // total stake on no
+    // byte "-"
+    // concat
+    // int 0
+    // itob
+    // concat
+    // byte "-"
+    // concat
+    // // Creation Timestamp
+    // global LatestTimestamp
+    // itob
+    // concat
+    // byte "f"
+    // concat
+    // app_local_put
 
-        // store the POI in users state
-        int 0
-        byte "ttnfu1r"
-        // Yes Votes Total
-        txna Accounts 1
-        byte "-"
-        concat
-        // User Salted Vote
-        byte "a3793e3fad28d443"
-        concat
-        byte "-"
-        concat
-        // Amount Staked by the user
-        txn Amount
-        itob
-        concat
-        app_local_put
+    //     // store the POI in users state
+    //     int 0
+    //     byte "ttnfu1r"
+    //     // Yes Votes Total
+    //     txna Accounts 1
+    //     byte "-"
+    //     concat
+    //     // User Salted Vote
+    //     byte "a3793e3fad28d443"
+    //     concat
+    //     byte "-"
+    //     concat
+    //     // Amount Staked by the user
+    //     txn Amount
+    //     itob
+    //     concat
+    //     app_local_put
 
     int 1
     // Get Geohash
@@ -371,12 +372,13 @@ reveal_vote:
     txna ApplicationArgs 2
     ==
     bnz vote_yes
-    byte "no"
+    byte "noo"
     txna ApplicationArgs 2
     ==
     bnz vote_no
     
     b failed
+
 withdraw:
     // store the POI in creators state receiver
     int 1
@@ -407,8 +409,6 @@ withdraw:
     // Creation Timestamp
     global LatestTimestamp
     itob
-    concat
-    byte "-"
     concat
     byte "f"
     concat
@@ -539,6 +539,8 @@ vote_no:
     app_local_get
     substring 0 9
     load 0
+    concat
+    byte "-"
     concat
     int 1 
     txna ApplicationArgs 1
