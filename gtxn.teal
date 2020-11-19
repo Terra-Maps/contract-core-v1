@@ -40,7 +40,7 @@ check_parms:
     bnz update_escrow
 
     //Create a new POI
-    txna ApplicationArgs 0
+    gtxna 1 ApplicationArgs 0
     byte "create_poi"
     ==
     bnz create_poi
@@ -81,7 +81,7 @@ update_escrow:
     // the call should pass the escrow 
     // address
     txn NumAppArgs
-    int 2
+    int 1
     ==
     &&
     bz failed
@@ -89,7 +89,7 @@ update_escrow:
     // store the address in global state
     // this parameter should be addr:
     byte "Escrow"
-    txna ApplicationArgs 1
+    txna Accounts 1
     app_global_put
     int 1
     return
@@ -99,27 +99,26 @@ update_escrow:
 
 // start_here_create_poi
 create_poi:
-        // global GroupSize
-        // int 2
-        // ==
-        // // an ApplicationCall (ie call escrow smart contract)
-        // gtxn 0 TypeEnum
-        // int 4
-        // ==
-        // &&
+    global GroupSize
+    int 2
+    ==
+    // an ApplicationCall (ie call escrow smart contract)
+    gtxn 0 TypeEnum
+    int 1
+    ==
+    &&
         
-        // // check applicationID
-        // gtxn 0 ApplicationID
-        // byte "Escrow"
-        // app_global_get
-        // ==
-        // &&
-        // bnz failed
-        // gtxn 0 Amount
-        // int 10
-        // <
-        // &&
-    
+    // check applicationID
+    gtxn 0 Receiver
+    byte "Escrow"
+    app_global_get
+    ==
+    &&
+    gtxn 0 Amount
+    int 1
+    >
+    &&
+    bz failed
     
     // Check the note field format
     // terra-hexendocedaddress-ttnfu1r-{"nm":"Buddha Jayanti Park","gh":"ttnfu1r","st":"v"}
@@ -197,38 +196,7 @@ vote_poi:
         // <
         // &&
 
-    // store the POI in creators state receiver
-        int 1
-        byte "ttnfu1r"
-        // Yes Votes Total
-        byte "y"
-        int 1
-        itob
-        concat
-        // No votes
-        byte "-n-"
-        concat
-        int 0
-        itob
-        concat
-        // Total Stake on POI
-        byte "-t-"
-        concat
-        txn Amount
-        itob
-        concat
-        byte "-"
-        concat
-        // Geohash
-        byte "ttnfu1r"
-        concat
-        byte "-"
-        concat
-        // Creation Timestamp
-        global LatestTimestamp
-        itob
-        concat
-        app_local_put
+
     
     // // TBD - Check if the ApplicationArgs have been properly supplied in the call transaction
     // int 1
@@ -264,60 +232,6 @@ vote_poi:
     b finished
 
 reveal_vote:
-
-    // store the POI in creators state receiver
-    int 1
-    byte "ttnfu1r"
-    // Yes Votes Total
-    int 1
-    itob
-    // No votes
-    byte "-"
-    concat
-    int 0
-    itob
-    concat
-    // Total Stake on yes 
-    byte "-"
-    concat
-    txn Amount
-    itob
-    concat
-    // total stake on no
-    byte "-"
-    concat
-    int 0
-    itob
-    concat
-    byte "-"
-    concat
-    // Creation Timestamp
-    global LatestTimestamp
-    itob
-    concat
-    byte "-"
-    concat
-    byte "f"
-    concat
-    app_local_put
-
-        // store the POI in users state
-        int 0
-        byte "ttnfu1r"
-        // Yes Votes Total
-        txna Accounts 1
-        byte "-"
-        concat
-        // User Salted Vote
-        byte "a3793e3fad28d443"
-        concat
-        byte "-"
-        concat
-        // Amount Staked by the user
-        txn Amount
-        itob
-        concat
-        app_local_put
 
     int 1
     // Get Geohash
@@ -378,60 +292,7 @@ reveal_vote:
     
     b failed
 withdraw:
-    // store the POI in creators state receiver
-    int 1
-    byte "ttnfu1r"
-    // Yes Votes Total
-    int 4
-    itob
-    // No votes
-    byte "-"
-    concat
-    int 1
-    itob
-    concat
-    // Total Stake on yes 
-    byte "-"
-    concat
-    int 1000
-    itob
-    concat
-    // total stake on no
-    byte "-"
-    concat
-    int 2000
-    itob
-    concat
-    byte "-"
-    concat
-    // Creation Timestamp
-    global LatestTimestamp
-    itob
-    concat
-    byte "-"
-    concat
-    byte "f"
-    concat
-    app_local_put
 
-        // store the POI in users state
-        int 0
-        byte "ttnfu1r"
-        // Yes Votes Total
-        txna Accounts 1
-        byte "-"
-        concat
-        // User  Vote
-        byte "yes"
-        concat
-        byte "-"
-        concat
-        // Amount Staked by the user
-        int 100
-        itob
-        concat
-        app_local_put
-    // check if vote was  yes "vote_yes"
     int 0
     txna ApplicationArgs 1
     app_local_get
