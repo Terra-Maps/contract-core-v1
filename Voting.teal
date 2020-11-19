@@ -462,7 +462,7 @@ withdraw:
 
 
 vote_yes:
-    //increment votes for yes
+     //increment votes for yes
     int 1 
     txna ApplicationArgs 1
     app_local_get
@@ -484,10 +484,14 @@ vote_yes:
     store 1
     // build entire string
     load 0
+    byte "-"
+    concat
     int 1 
     txna ApplicationArgs 1
     app_local_get
     substring 9 17
+    concat
+    byte "-"
     concat
     load 1
     concat
