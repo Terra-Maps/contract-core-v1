@@ -39,6 +39,12 @@ check_parms:
     ==
     bnz update_escrow
 
+    //reveal vote
+    txna ApplicationArgs 0
+    byte "reveal_vote" 
+    ==
+    bnz reveal_vote
+
     //Create a new POI
     gtxna 1 ApplicationArgs 0
     byte "create_poi"
@@ -51,11 +57,6 @@ check_parms:
     ==
     bnz vote_poi
     
-    //reveal vote
-    txna ApplicationArgs 0
-    byte "reveal_vote" 
-    ==
-    bnz reveal_vote
 
     //withdraw stake
     gtxna 1 ApplicationArgs 0
@@ -129,7 +130,7 @@ create_poi:
     substring 0 6
     byte "terra-"
     ==
-    bz failed
+   // bz failed
 
     // txn Note
     // substring 6 70
@@ -464,7 +465,7 @@ withdraw:
 vote_yes:
      //increment votes for yes
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 0 8
     btoi
@@ -474,11 +475,15 @@ vote_yes:
     store 0
     // increment stake
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 18 26
     btoi
-    gtxn 0 Amount
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    substring 37 45
+    btoi
     +
     itob
     store 1
@@ -487,7 +492,7 @@ vote_yes:
     byte "-"
     concat
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 9 17
     concat
@@ -497,11 +502,11 @@ vote_yes:
     concat
     //fetch rest of the string
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     int 26
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     len
     substring3 
@@ -510,7 +515,7 @@ vote_yes:
     // save entire string
 
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     load 3
     app_local_put
     b finished
@@ -519,7 +524,7 @@ vote_yes:
 vote_no:
         //increment votes for yes
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 9 17
     btoi
@@ -529,17 +534,21 @@ vote_no:
     store 0
     // increment stake
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 27 35
     btoi
-    gtxn  0 Amount
+    int 0
+    txna ApplicationArgs 1
+    app_local_get
+    substring 37 45
+    btoi
     +
     itob
     store 1
     // build entire string
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 0 9
     load 0
@@ -547,7 +556,7 @@ vote_no:
     byte "-"
     concat
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     substring 18 27
     concat
@@ -555,11 +564,11 @@ vote_no:
     concat
     //fetch rest of the string
     int 1 
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     int 35
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     app_local_get
     len
     substring3 
@@ -568,7 +577,7 @@ vote_no:
     // save entire string
 
     int 1
-    gtxna 1 ApplicationArgs 1
+    txna  ApplicationArgs 1
     load 3
     app_local_put
     b finished  
